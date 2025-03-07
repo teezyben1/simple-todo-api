@@ -1,14 +1,18 @@
 const Task = require('../models/task_model');
+const User = require('../models/user_model');
 
 exports.create_task = async(req, res) =>{ 
 
     try {
+        const user = await User.findById(req.user.id)
         const {name, description} = req.body;
-        const new_task = await Task.create({name, description});
+        const new_task = await Task.create({user, name, description});
+        user.tasks.push(new_task._id);
         res.status(201).json({
             message: "Task created successfully",
             data: new_task
         })
+        await user.save();
 
         
     } catch (error) {
